@@ -37,7 +37,6 @@
     overflow-x: hidden;
   }
 
-  /* ── Grid background ── */
   body::before {
     content: '';
     position: fixed;
@@ -50,7 +49,6 @@
     z-index: 0;
   }
 
-  /* ── Glow orbs ── */
   .orb {
     position: fixed;
     border-radius: 50%;
@@ -62,7 +60,6 @@
   .orb-1 { width: 500px; height: 500px; background: var(--accent2); top: -150px; right: -100px; }
   .orb-2 { width: 400px; height: 400px; background: var(--accent); bottom: -120px; left: -80px; }
 
-  /* ── Header ── */
   header {
     position: relative;
     z-index: 10;
@@ -107,9 +104,168 @@
     margin-top: 4px;
   }
 
+  /* ── Quick nav buttons ── */
+  .quick-nav {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+
+  .nav-btn-bot {
+    background: linear-gradient(135deg, rgba(0,229,255,.15), rgba(124,58,237,.15));
+    border-color: rgba(0,229,255,.4);
+    color: var(--accent);
+    box-shadow: 0 0 16px rgba(0,229,255,.1);
+  }
+  .nav-btn-bot:hover {
+    background: linear-gradient(135deg, rgba(0,229,255,.25), rgba(124,58,237,.25));
+    box-shadow: 0 0 24px rgba(0,229,255,.25);
+    transform: translateY(-1px);
+  }
+
+  .nav-btn-tg {
+    background: rgba(38,169,224,.1);
+    border-color: rgba(38,169,224,.35);
+    color: #29a9e0;
+  }
+  .nav-btn-tg:hover {
+    background: rgba(38,169,224,.2);
+    border-color: rgba(38,169,224,.6);
+    transform: translateY(-1px);
+  }
+
+  .nav-btn-wa {
+    background: rgba(37,211,102,.1);
+    border-color: rgba(37,211,102,.35);
+    color: #25d366;
+  }
+  .nav-btn-wa:hover {
+    background: rgba(37,211,102,.2);
+    border-color: rgba(37,211,102,.6);
+    transform: translateY(-1px);
+  }
+
+  .nav-btn-help {
+    background: rgba(255,184,0,.08);
+    border-color: rgba(255,184,0,.3);
+    color: var(--warn);
+  }
+  .nav-btn-help:hover {
+    background: rgba(255,184,0,.16);
+    border-color: rgba(255,184,0,.55);
+    transform: translateY(-1px);
+  }
+
+  /* ── Community section ── */
+  .community-section {
+    margin-top: 20px;
+    background: rgba(255,255,255,.02);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .community-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .community-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .community-group {
+    background: var(--panel);
+    padding: 12px 14px;
+  }
+
+  .community-group-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .community-links {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .community-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    text-decoration: none;
+    padding: 5px 8px;
+    border-radius: 6px;
+    transition: all .2s;
+    border: 1px solid transparent;
+  }
+
+  .community-link.tg {
+    color: #29a9e0;
+    background: rgba(38,169,224,.05);
+  }
+  .community-link.tg:hover {
+    background: rgba(38,169,224,.15);
+    border-color: rgba(38,169,224,.3);
+  }
+
+  .community-link.wa {
+    color: #25d366;
+    background: rgba(37,211,102,.05);
+  }
+  .community-link.wa:hover {
+    background: rgba(37,211,102,.15);
+    border-color: rgba(37,211,102,.3);
+  }
+
+  .community-link.help {
+    color: var(--warn);
+    background: rgba(255,184,0,.05);
+  }
+  .community-link.help:hover {
+    background: rgba(255,184,0,.12);
+    border-color: rgba(255,184,0,.3);
+  }
+
   /* ── Stats dashboard ── */
   .stats-dashboard {
-    margin-top: 24px;
+    margin-top: 20px;
     background: rgba(255,255,255,.02);
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -150,12 +306,7 @@
     50% { opacity: .4; }
   }
 
-  .stats-toggle {
-    font-size: 10px;
-    color: var(--muted);
-    transition: transform .3s;
-  }
-
+  .stats-toggle { font-size: 10px; color: var(--muted); transition: transform .3s; }
   .stats-toggle.open { transform: rotate(180deg); }
 
   .stats-grid {
@@ -187,23 +338,18 @@
     line-height: 1;
   }
 
-  .stat-tile-value.cyan  { color: var(--accent); }
-  .stat-tile-value.green { color: var(--success); }
-  .stat-tile-value.warn  { color: var(--warn); }
+  .stat-tile-value.cyan   { color: var(--accent); }
+  .stat-tile-value.green  { color: var(--success); }
+  .stat-tile-value.warn   { color: var(--warn); }
   .stat-tile-value.purple { color: #a78bfa; }
 
-  .stat-tile-sub {
-    font-size: 10px;
-    color: var(--muted);
-  }
+  .stat-tile-sub { font-size: 10px; color: var(--muted); }
 
-  /* ── Graph section ── */
   .graph-section {
     padding: 14px 16px;
     border-top: 1px solid var(--border);
     display: none;
   }
-
   .graph-section.visible { display: block; }
 
   .graph-label {
@@ -216,34 +362,12 @@
     justify-content: space-between;
   }
 
-  .graph-wrap {
-    position: relative;
-    height: 80px;
-  }
+  .graph-wrap { position: relative; height: 80px; }
+  canvas#statsChart { width: 100% !important; height: 80px !important; }
 
-  canvas#statsChart {
-    width: 100% !important;
-    height: 80px !important;
-  }
-
-  .graph-legend {
-    display: flex;
-    gap: 14px;
-    margin-top: 8px;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 9px;
-    color: var(--muted);
-  }
-
-  .legend-dot {
-    width: 8px; height: 8px;
-    border-radius: 2px;
-  }
+  .graph-legend { display: flex; gap: 14px; margin-top: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 9px; color: var(--muted); }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
 
   /* ── Main card ── */
   main {
@@ -251,7 +375,7 @@
     z-index: 10;
     width: 100%;
     max-width: 580px;
-    margin: 32px auto 60px;
+    margin: 28px auto 60px;
     padding: 0 24px;
   }
 
@@ -287,11 +411,8 @@
     text-transform: uppercase;
   }
 
-  .card-body {
-    padding: 28px 24px;
-  }
+  .card-body { padding: 28px 24px; }
 
-  /* ── Steps indicator ── */
   .steps {
     display: flex;
     align-items: center;
@@ -300,13 +421,7 @@
     margin-bottom: 32px;
   }
 
-  .step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    flex: 1;
-  }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
 
   .step-num {
     width: 32px; height: 32px;
@@ -320,13 +435,7 @@
     background: var(--bg);
   }
 
-  .step-label {
-    font-size: 9px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-align: center;
-  }
+  .step-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; text-align: center; }
 
   .step-line {
     flex: 1;
@@ -336,42 +445,21 @@
     transition: background .3s;
   }
 
-  .step.active .step-num {
-    border-color: var(--accent);
-    color: var(--accent);
-    box-shadow: 0 0 16px rgba(0,229,255,.3);
-  }
-
-  .step.done .step-num {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--bg);
-  }
-
+  .step.active .step-num { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 16px rgba(0,229,255,.3); }
+  .step.done .step-num { background: var(--accent); border-color: var(--accent); color: var(--bg); }
   .step.done + .step-line { background: var(--accent); }
 
-  /* ── Phone input section ── */
   #section-phone { display: block; }
   #section-code  { display: none; }
   #section-done  { display: none; }
 
-  .label {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    margin-bottom: 8px;
-  }
+  .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; }
 
-  .input-wrap {
-    position: relative;
-    margin-bottom: 16px;
-  }
+  .input-wrap { position: relative; margin-bottom: 16px; }
 
   .input-prefix {
     position: absolute;
-    left: 14px;
-    top: 50%;
+    left: 14px; top: 50%;
     transform: translateY(-50%);
     font-size: 18px;
     pointer-events: none;
@@ -391,21 +479,11 @@
     letter-spacing: 1px;
   }
 
-  input[type="tel"]:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0,229,255,.1);
-  }
-
+  input[type="tel"]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,229,255,.1); }
   input[type="tel"]::placeholder { color: var(--muted); }
 
-  .hint {
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 20px;
-    padding-left: 2px;
-  }
+  .hint { font-size: 11px; color: var(--muted); margin-bottom: 20px; padding-left: 2px; }
 
-  /* ── Buttons ── */
   .btn {
     width: 100%;
     padding: 14px 20px;
@@ -428,16 +506,8 @@
     color: var(--bg);
     box-shadow: 0 0 24px rgba(0,229,255,.25);
   }
-
-  .btn-primary:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 0 32px rgba(0,229,255,.4);
-  }
-
-  .btn-primary:disabled {
-    opacity: .4;
-    cursor: not-allowed;
-  }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 0 32px rgba(0,229,255,.4); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
 
   .btn-ghost {
     background: transparent;
@@ -445,10 +515,8 @@
     border: 1px solid var(--border);
     margin-top: 10px;
   }
-
   .btn-ghost:hover { border-color: var(--danger); color: var(--danger); }
 
-  /* ── Pairing code display ── */
   .code-display {
     background: rgba(0,0,0,.4);
     border: 1px solid var(--border);
@@ -474,22 +542,8 @@
     100% { transform: translateX(100%); }
   }
 
-  .code-label {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 12px;
-  }
-
-  .code-value {
-    font-size: 40px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 6px;
-    text-shadow: 0 0 32px rgba(0,229,255,.5);
-    font-variant-numeric: tabular-nums;
-  }
+  .code-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+  .code-value { font-size: 40px; font-weight: 700; color: var(--accent); letter-spacing: 6px; text-shadow: 0 0 32px rgba(0,229,255,.5); font-variant-numeric: tabular-nums; }
 
   .code-copy {
     margin-top: 12px;
@@ -506,7 +560,6 @@
     cursor: pointer;
     transition: all .2s;
   }
-
   .code-copy:hover { border-color: var(--accent); color: var(--accent); }
 
   .instructions-box {
@@ -519,13 +572,8 @@
     color: var(--text);
     margin-bottom: 20px;
   }
+  .instructions-box .step-i { color: var(--warn); font-weight: 700; }
 
-  .instructions-box .step-i {
-    color: var(--warn);
-    font-weight: 700;
-  }
-
-  /* ── Status log ── */
   .status-log {
     background: rgba(0,0,0,.3);
     border: 1px solid var(--border);
@@ -551,13 +599,7 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Session done ── */
-  .success-icon {
-    text-align: center;
-    font-size: 48px;
-    margin-bottom: 16px;
-    animation: popIn .4s cubic-bezier(.34,1.56,.64,1);
-  }
+  .success-icon { text-align: center; font-size: 48px; margin-bottom: 16px; animation: popIn .4s cubic-bezier(.34,1.56,.64,1); }
 
   @keyframes popIn {
     from { transform: scale(0); opacity: 0; }
@@ -598,11 +640,7 @@
     transition: all .2s;
     margin-bottom: 10px;
   }
-
-  .btn-copy-session:hover {
-    background: rgba(16,216,126,.2);
-    box-shadow: 0 0 20px rgba(16,216,126,.2);
-  }
+  .btn-copy-session:hover { background: rgba(16,216,126,.2); box-shadow: 0 0 20px rgba(16,216,126,.2); }
 
   .copied-toast {
     text-align: center;
@@ -614,7 +652,6 @@
     margin-bottom: 10px;
   }
 
-  /* ── Error state ── */
   .error-msg {
     background: rgba(255,68,102,.08);
     border: 1px solid rgba(255,68,102,.3);
@@ -626,7 +663,6 @@
     margin-bottom: 14px;
   }
 
-  /* ── Footer ── */
   footer {
     position: relative;
     z-index: 10;
@@ -635,14 +671,14 @@
     font-size: 11px;
     color: var(--muted);
   }
-
   footer a { color: var(--accent); text-decoration: none; }
   footer a:hover { text-decoration: underline; }
 
-  /* ── Responsive ── */
   @media (max-width: 480px) {
     .code-value { font-size: 28px; letter-spacing: 4px; }
-    .stat-value { font-size: 16px; }
+    .community-grid { grid-template-columns: 1fr; }
+    .quick-nav { gap: 6px; }
+    .nav-btn { font-size: 10px; padding: 7px 11px; }
   }
 </style>
 </head>
@@ -658,6 +694,18 @@
   </div>
   <p class="tagline">WhatsApp Session Generator</p>
 
+  <!-- Quick Nav Buttons -->
+  <div class="quick-nav">
+    <a href="ultra.html" class="nav-btn nav-btn-bot">🤖 Visit Bot Site</a>
+    <a href="https://t.me/trashcore2" target="_blank" class="nav-btn nav-btn-tg">✈️ TG Channel 1</a>
+    <a href="https://t.me/trashcoresystem" target="_blank" class="nav-btn nav-btn-tg">✈️ TG Channel 2</a>
+    <a href="https://whatsapp.com/channel/0029VafrbsKG8l5EFBDDCy41" target="_blank" class="nav-btn nav-btn-wa">💬 WA Channel 1</a>
+    <a href="https://whatsapp.com/channel/0029VbAWe2uIHphDEiz3Vh2r" target="_blank" class="nav-btn nav-btn-wa">💬 WA Channel 2</a>
+    <a href="https://t.me/trashcorechat" target="_blank" class="nav-btn nav-btn-tg">👥 TG Group</a>
+    <a href="https://t.me/trashcoredev2" target="_blank" class="nav-btn nav-btn-help">🛟 Get Help</a>
+  </div>
+
+  <!-- Stats Dashboard -->
   <div class="stats-dashboard">
     <div class="stats-header" onclick="toggleGraph()">
       <div class="stats-header-left">
@@ -699,18 +747,9 @@
         <canvas id="statsChart"></canvas>
       </div>
       <div class="graph-legend">
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#10d87e"></div>
-          Successful
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#ff4466"></div>
-          Failed
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:#00e5ff"></div>
-          Active
-        </div>
+        <div class="legend-item"><div class="legend-dot" style="background:#10d87e"></div>Successful</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ff4466"></div>Failed</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#00e5ff"></div>Active</div>
       </div>
     </div>
   </div>
@@ -726,7 +765,6 @@
     </div>
     <div class="card-body">
 
-      <!-- Steps -->
       <div class="steps">
         <div class="step active" id="s1">
           <div class="step-num">1</div>
@@ -744,10 +782,8 @@
         </div>
       </div>
 
-      <!-- Error -->
       <div class="error-msg" id="error-msg"></div>
 
-      <!-- Section 1: Phone input -->
       <div id="section-phone">
         <div class="label">Phone Number</div>
         <div class="input-wrap">
@@ -760,7 +796,6 @@
         </button>
       </div>
 
-      <!-- Section 2: Pairing code -->
       <div id="section-code">
         <div class="status-log" id="status-log">
           <div class="spinner"></div>
@@ -784,7 +819,6 @@
         <button class="btn btn-ghost" onclick="cancelPairing()">✕ Cancel</button>
       </div>
 
-      <!-- Section 3: Done -->
       <div id="section-done">
         <div class="success-icon">🎉</div>
         <p style="text-align:center; font-size:14px; color:var(--success); margin-bottom:20px; font-weight:700;">
@@ -804,18 +838,16 @@
 </main>
 
 <footer>
-  <a href="www.drexapp.space" target="_blank">🌐www.drexapp.space</a>
+  <a href="https://www.drexapp.space" target="_blank">🌐 www.drexapp.space</a>
   &nbsp;·&nbsp; Powered by @trashcore/baileys
 </footer>
 
 <script>
   const BACKEND = 'https://web-production-31393.up.railway.app';
-
   const socket = io(BACKEND);
   let currentCode = '';
   let currentSession = '';
 
-  // ── Stats & Chart ───────────────────────────────────────────────────────
   let chart = null;
   let graphOpen = false;
 
@@ -833,37 +865,9 @@
       data: {
         labels: [],
         datasets: [
-          {
-            label: 'Successful',
-            data: [],
-            borderColor: '#10d87e',
-            backgroundColor: 'rgba(16,216,126,0.08)',
-            borderWidth: 2,
-            pointRadius: 2,
-            tension: 0.4,
-            fill: true
-          },
-          {
-            label: 'Failed',
-            data: [],
-            borderColor: '#ff4466',
-            backgroundColor: 'rgba(255,68,102,0.06)',
-            borderWidth: 2,
-            pointRadius: 2,
-            tension: 0.4,
-            fill: true
-          },
-          {
-            label: 'Active',
-            data: [],
-            borderColor: '#00e5ff',
-            backgroundColor: 'rgba(0,229,255,0.05)',
-            borderWidth: 1.5,
-            pointRadius: 2,
-            tension: 0.4,
-            fill: false,
-            borderDash: [4, 3]
-          }
+          { label: 'Successful', data: [], borderColor: '#10d87e', backgroundColor: 'rgba(16,216,126,0.08)', borderWidth: 2, pointRadius: 2, tension: 0.4, fill: true },
+          { label: 'Failed',     data: [], borderColor: '#ff4466', backgroundColor: 'rgba(255,68,102,0.06)', borderWidth: 2, pointRadius: 2, tension: 0.4, fill: true },
+          { label: 'Active',     data: [], borderColor: '#00e5ff', backgroundColor: 'rgba(0,229,255,0.05)',  borderWidth: 1.5, pointRadius: 2, tension: 0.4, fill: false, borderDash: [4,3] }
         ]
       },
       options: {
@@ -871,27 +875,14 @@
         maintainAspectRatio: false,
         animation: { duration: 400 },
         plugins: { legend: { display: false }, tooltip: {
-          backgroundColor: '#0d1117',
-          borderColor: '#1e2633',
-          borderWidth: 1,
-          titleColor: '#c9d1d9',
-          bodyColor: '#4a5568',
+          backgroundColor: '#0d1117', borderColor: '#1e2633', borderWidth: 1,
+          titleColor: '#c9d1d9', bodyColor: '#4a5568',
           titleFont: { family: 'Space Mono', size: 10 },
-          bodyFont: { family: 'Space Mono', size: 10 },
-          padding: 8
+          bodyFont:  { family: 'Space Mono', size: 10 }, padding: 8
         }},
         scales: {
-          x: {
-            ticks: { color: '#4a5568', font: { family: 'Space Mono', size: 8 }, maxTicksLimit: 6 },
-            grid: { color: 'rgba(255,255,255,0.04)' },
-            border: { color: '#1e2633' }
-          },
-          y: {
-            ticks: { color: '#4a5568', font: { family: 'Space Mono', size: 8 }, maxTicksLimit: 4 },
-            grid: { color: 'rgba(255,255,255,0.04)' },
-            border: { color: '#1e2633' },
-            beginAtZero: true
-          }
+          x: { ticks: { color: '#4a5568', font: { family: 'Space Mono', size: 8 }, maxTicksLimit: 6 }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { color: '#1e2633' } },
+          y: { ticks: { color: '#4a5568', font: { family: 'Space Mono', size: 8 }, maxTicksLimit: 4 }, grid: { color: 'rgba(255,255,255,0.04)' }, border: { color: '#1e2633' }, beginAtZero: true }
         }
       }
     });
@@ -908,19 +899,15 @@
       document.getElementById('graph-points').textContent = '0 data points';
       return;
     }
-
-    // Compute per-interval deltas so graph shows activity not cumulative
     const labels = [], successful = [], failed = [], active = [];
     for (let i = 0; i < hourly.length; i++) {
-      const p = hourly[i];
-      const prev = hourly[i - 1];
+      const p = hourly[i], prev = hourly[i - 1];
       const d = new Date(p.t);
       labels.push(`${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`);
       successful.push(prev ? Math.max(0, p.s - prev.s) : p.s);
       failed.push(prev ? Math.max(0, (p.r - p.s) - (prev.r - prev.s)) : 0);
       active.push(p.a);
     }
-
     chart.data.labels = labels;
     chart.data.datasets[0].data = successful;
     chart.data.datasets[1].data = failed;
@@ -933,16 +920,12 @@
     try {
       const res = await fetch(`${BACKEND}/api/stats`);
       const data = await res.json();
-
-      document.getElementById('stat-users').textContent = data.totalUsers;
-      document.getElementById('stat-active').textContent = data.activeSessions;
-      document.getElementById('stat-uptime').textContent = data.uptimeFormatted || '—';
-
+      document.getElementById('stat-users').textContent   = data.totalUsers;
+      document.getElementById('stat-active').textContent  = data.activeSessions;
+      document.getElementById('stat-uptime').textContent  = data.uptimeFormatted || '—';
       const rate = parseFloat(data.successRate || 0);
-      document.getElementById('stat-rate').textContent = rate.toFixed(1) + '%';
-      document.getElementById('stat-rate-sub').textContent =
-        `${data.totalSuccessful} / ${data.totalRequested} sessions`;
-
+      document.getElementById('stat-rate').textContent    = rate.toFixed(1) + '%';
+      document.getElementById('stat-rate-sub').textContent = `${data.totalSuccessful} / ${data.totalRequested} sessions`;
       updateChart(data.hourly || []);
     } catch (_) {}
   }
@@ -951,12 +934,9 @@
   loadStats();
   setInterval(loadStats, 10000);
 
-  // ── Socket events ────────────────────────────────────────────────────────
   socket.on('status', ({ step, message }) => {
     document.getElementById('status-text').textContent = message;
-    if (step === 'cancelled') {
-      resetAll();
-    }
+    if (step === 'cancelled') resetAll();
   });
 
   socket.on('pairing_code', ({ code }) => {
@@ -965,8 +945,6 @@
     document.getElementById('code-display').style.display = 'block';
     document.getElementById('code-instructions').style.display = 'block';
     document.getElementById('status-text').textContent = 'Waiting for you to enter the code in WhatsApp…';
-
-    // Update step
     setStep(2);
     loadStats();
   });
@@ -986,7 +964,6 @@
     document.getElementById('btn-start').disabled = false;
   });
 
-  // ── Actions ──────────────────────────────────────────────────────────────
   function startPairing() {
     const phone = document.getElementById('phone-input').value.trim();
     if (!phone) return showError('Please enter your phone number.');
@@ -997,13 +974,10 @@
     socket.emit('start_pairing', { phone });
   }
 
-  function cancelPairing() {
-    socket.emit('cancel_pairing');
-  }
+  function cancelPairing() { socket.emit('cancel_pairing'); }
 
   function resetAll() {
-    currentCode = '';
-    currentSession = '';
+    currentCode = ''; currentSession = '';
     document.getElementById('phone-input').value = '';
     document.getElementById('btn-start').disabled = false;
     document.getElementById('code-display').style.display = 'none';
@@ -1014,7 +988,6 @@
     setStep(1);
   }
 
-  // ── UI helpers ───────────────────────────────────────────────────────────
   function showSection(name) {
     document.getElementById('section-phone').style.display = name === 'phone' ? 'block' : 'none';
     document.getElementById('section-code').style.display  = name === 'code'  ? 'block' : 'none';
@@ -1030,8 +1003,7 @@
     });
     [1,2].forEach(i => {
       const l = document.getElementById(`line${i}`);
-      if (i < n) l.style.background = 'var(--accent)';
-      else l.style.background = 'var(--border)';
+      l.style.background = i < n ? 'var(--accent)' : 'var(--border)';
     });
   }
 
@@ -1041,13 +1013,8 @@
     el.style.display = 'block';
   }
 
-  function hideError() {
-    document.getElementById('error-msg').style.display = 'none';
-  }
-
-  function copyCode() {
-    navigator.clipboard.writeText(currentCode).catch(() => {});
-  }
+  function hideError() { document.getElementById('error-msg').style.display = 'none'; }
+  function copyCode() { navigator.clipboard.writeText(currentCode).catch(() => {}); }
 
   function copySession() {
     navigator.clipboard.writeText(currentSession).then(() => {
@@ -1057,7 +1024,6 @@
     }).catch(() => {});
   }
 
-  // Enter key support
   document.getElementById('phone-input').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') startPairing();
   });
