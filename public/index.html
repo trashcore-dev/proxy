@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
     --bg: #080b0f;
@@ -106,34 +107,142 @@
     margin-top: 4px;
   }
 
-  /* ── Stats bar ── */
-  .stats-bar {
-    display: flex;
-    gap: 24px;
-    justify-content: center;
+  /* ── Stats dashboard ── */
+  .stats-dashboard {
     margin-top: 24px;
-    padding: 12px 20px;
-    background: rgba(255,255,255,.03);
+    background: rgba(255,255,255,.02);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 12px;
+    overflow: hidden;
   }
 
-  .stat-item {
-    text-align: center;
+  .stats-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
   }
 
-  .stat-value {
-    font-size: 20px;
+  .stats-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
     font-weight: 700;
-    color: var(--accent);
-    display: block;
   }
 
-  .stat-label {
+  .live-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px var(--success);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .4; }
+  }
+
+  .stats-toggle {
+    font-size: 10px;
+    color: var(--muted);
+    transition: transform .3s;
+  }
+
+  .stats-toggle.open { transform: rotate(180deg); }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--border);
+  }
+
+  .stat-tile {
+    background: var(--panel);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-tile-label {
     font-size: 9px;
     color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 1.5px;
+  }
+
+  .stat-tile-value {
+    font-size: 22px;
+    font-weight: 700;
+    font-family: var(--sans);
+    line-height: 1;
+  }
+
+  .stat-tile-value.cyan  { color: var(--accent); }
+  .stat-tile-value.green { color: var(--success); }
+  .stat-tile-value.warn  { color: var(--warn); }
+  .stat-tile-value.purple { color: #a78bfa; }
+
+  .stat-tile-sub {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  /* ── Graph section ── */
+  .graph-section {
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+    display: none;
+  }
+
+  .graph-section.visible { display: block; }
+
+  .graph-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .graph-wrap {
+    position: relative;
+    height: 80px;
+  }
+
+  canvas#statsChart {
+    width: 100% !important;
+    height: 80px !important;
+  }
+
+  .graph-legend {
+    display: flex;
+    gap: 14px;
+    margin-top: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9px;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 2px;
   }
 
   /* ── Main card ── */
@@ -549,18 +658,60 @@
   </div>
   <p class="tagline">WhatsApp Session Generator</p>
 
-  <div class="stats-bar">
-    <div class="stat-item">
-      <span class="stat-value" id="stat-users">—</span>
-      <span class="stat-label">Users</span>
+  <div class="stats-dashboard">
+    <div class="stats-header" onclick="toggleGraph()">
+      <div class="stats-header-left">
+        <div class="live-dot"></div>
+        Live Statistics
+      </div>
+      <span class="stats-toggle" id="stats-toggle">▼</span>
     </div>
-    <div class="stat-item">
-      <span class="stat-value" id="stat-sessions">—</span>
-      <span class="stat-label">Sessions</span>
+
+    <div class="stats-grid">
+      <div class="stat-tile">
+        <span class="stat-tile-label">Total Users</span>
+        <span class="stat-tile-value cyan" id="stat-users">—</span>
+        <span class="stat-tile-sub">unique visitors</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-tile-label">Success Rate</span>
+        <span class="stat-tile-value green" id="stat-rate">—</span>
+        <span class="stat-tile-sub" id="stat-rate-sub">0 / 0 sessions</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-tile-label">Active Now</span>
+        <span class="stat-tile-value warn" id="stat-active">—</span>
+        <span class="stat-tile-sub">live pairings</span>
+      </div>
+      <div class="stat-tile">
+        <span class="stat-tile-label">Uptime</span>
+        <span class="stat-tile-value purple" id="stat-uptime">—</span>
+        <span class="stat-tile-sub">server online</span>
+      </div>
     </div>
-    <div class="stat-item">
-      <span class="stat-value" id="stat-active">—</span>
-      <span class="stat-label">Active</span>
+
+    <div class="graph-section" id="graph-section">
+      <div class="graph-label">
+        <span>Session activity (last 24h)</span>
+        <span id="graph-points">0 data points</span>
+      </div>
+      <div class="graph-wrap">
+        <canvas id="statsChart"></canvas>
+      </div>
+      <div class="graph-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#10d87e"></div>
+          Successful
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#ff4466"></div>
+          Failed
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#00e5ff"></div>
+          Active
+        </div>
+      </div>
     </div>
   </div>
 </header>
@@ -653,29 +804,150 @@
 </main>
 
 <footer>
-  <a href="drexapp.space" target="_blank">🌐 trashbots.zone.id</a>
+  <a href="www.drexapp.space" target="_blank">🌐www.drexapp.space</a>
   &nbsp;·&nbsp; Powered by @trashcore/baileys
 </footer>
 
 <script>
-  // Replace with your Railway backend URL once deployed
   const BACKEND = 'https://web-production-31393.up.railway.app';
 
   const socket = io(BACKEND);
   let currentCode = '';
   let currentSession = '';
 
-  // ── Load stats ──────────────────────────────────────────────────────────
+  // ── Stats & Chart ───────────────────────────────────────────────────────
+  let chart = null;
+  let graphOpen = false;
+
+  function toggleGraph() {
+    graphOpen = !graphOpen;
+    document.getElementById('graph-section').classList.toggle('visible', graphOpen);
+    document.getElementById('stats-toggle').classList.toggle('open', graphOpen);
+    if (graphOpen && chart) chart.update();
+  }
+
+  function initChart() {
+    const ctx = document.getElementById('statsChart').getContext('2d');
+    chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            label: 'Successful',
+            data: [],
+            borderColor: '#10d87e',
+            backgroundColor: 'rgba(16,216,126,0.08)',
+            borderWidth: 2,
+            pointRadius: 2,
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Failed',
+            data: [],
+            borderColor: '#ff4466',
+            backgroundColor: 'rgba(255,68,102,0.06)',
+            borderWidth: 2,
+            pointRadius: 2,
+            tension: 0.4,
+            fill: true
+          },
+          {
+            label: 'Active',
+            data: [],
+            borderColor: '#00e5ff',
+            backgroundColor: 'rgba(0,229,255,0.05)',
+            borderWidth: 1.5,
+            pointRadius: 2,
+            tension: 0.4,
+            fill: false,
+            borderDash: [4, 3]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 400 },
+        plugins: { legend: { display: false }, tooltip: {
+          backgroundColor: '#0d1117',
+          borderColor: '#1e2633',
+          borderWidth: 1,
+          titleColor: '#c9d1d9',
+          bodyColor: '#4a5568',
+          titleFont: { family: 'Space Mono', size: 10 },
+          bodyFont: { family: 'Space Mono', size: 10 },
+          padding: 8
+        }},
+        scales: {
+          x: {
+            ticks: { color: '#4a5568', font: { family: 'Space Mono', size: 8 }, maxTicksLimit: 6 },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            border: { color: '#1e2633' }
+          },
+          y: {
+            ticks: { color: '#4a5568', font: { family: 'Space Mono', size: 8 }, maxTicksLimit: 4 },
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            border: { color: '#1e2633' },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+  }
+
+  function updateChart(hourly) {
+    if (!chart) return;
+    if (!hourly || hourly.length === 0) {
+      chart.data.labels = ['No data yet'];
+      chart.data.datasets[0].data = [0];
+      chart.data.datasets[1].data = [0];
+      chart.data.datasets[2].data = [0];
+      chart.update('none');
+      document.getElementById('graph-points').textContent = '0 data points';
+      return;
+    }
+
+    // Compute per-interval deltas so graph shows activity not cumulative
+    const labels = [], successful = [], failed = [], active = [];
+    for (let i = 0; i < hourly.length; i++) {
+      const p = hourly[i];
+      const prev = hourly[i - 1];
+      const d = new Date(p.t);
+      labels.push(`${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`);
+      successful.push(prev ? Math.max(0, p.s - prev.s) : p.s);
+      failed.push(prev ? Math.max(0, (p.r - p.s) - (prev.r - prev.s)) : 0);
+      active.push(p.a);
+    }
+
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = successful;
+    chart.data.datasets[1].data = failed;
+    chart.data.datasets[2].data = active;
+    chart.update('none');
+    document.getElementById('graph-points').textContent = `${hourly.length} data points`;
+  }
+
   async function loadStats() {
     try {
       const res = await fetch(`${BACKEND}/api/stats`);
       const data = await res.json();
+
       document.getElementById('stat-users').textContent = data.totalUsers;
-      document.getElementById('stat-sessions').textContent = data.totalSuccessful;
       document.getElementById('stat-active').textContent = data.activeSessions;
+      document.getElementById('stat-uptime').textContent = data.uptimeFormatted || '—';
+
+      const rate = parseFloat(data.successRate || 0);
+      document.getElementById('stat-rate').textContent = rate.toFixed(1) + '%';
+      document.getElementById('stat-rate-sub').textContent =
+        `${data.totalSuccessful} / ${data.totalRequested} sessions`;
+
+      updateChart(data.hourly || []);
     } catch (_) {}
   }
 
+  initChart();
   loadStats();
   setInterval(loadStats, 10000);
 
