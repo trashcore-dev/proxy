@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Trashcore Ultra — Deploy Your Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700&family=Syne:wght@400;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #060a0e;
+    --panel: #0c1118;
+    --border: #1a2332;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #ff6b35;
+    --success: #10d87e;
+    --danger: #ff4466;
+    --warn: #ffb800;
+    --text: #c9d1d9;
+    --muted: #4a5568;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Orbs ── */
+  .orb { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; }
+  .orb-1 { width: 600px; height: 600px; background: var(--accent2); top: -200px; right: -150px; opacity: .18; }
+  .orb-2 { width: 450px; height: 450px; background: var(--accent); bottom: -150px; left: -100px; opacity: .15; }
+  .orb-3 { width: 300px; height: 300px; background: var(--accent3); top: 50%; left: 50%; transform: translate(-50%,-50%); opacity: .06; }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(6,10,14,.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .nav-logo {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 0 16px rgba(0,229,255,.25);
+  }
+
+  .nav-title {
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), #fff 70%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nav-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    transition: all .2s;
+  }
+  .nav-back:hover { color: var(--accent); border-color: rgba(0,229,255,.4); }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 72px 24px 48px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,255,.08);
+    border: 1px solid rgba(0,229,255,.2);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeDown .5s ease both;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero h1 {
+    font-family: var(--sans);
+    font-size: clamp(36px, 7vw, 64px);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 16px;
+    animation: fadeUp .5s .1s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero h1 .line1 { display: block; color: #fff; }
+  .hero h1 .line2 {
+    display: block;
+    background: linear-gradient(90deg, var(--accent), var(--accent2) 60%, var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .hero-sub {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto 32px;
+    animation: fadeUp .5s .2s ease both;
+  }
+
+  /* ── Repo stats strip ── */
+  .repo-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 40px;
+    animation: fadeUp .5s .3s ease both;
+  }
+
+  .repo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    color: var(--text);
+    text-decoration: none;
+    transition: all .2s;
+  }
+  .repo-badge:hover { border-color: rgba(0,229,255,.35); color: var(--accent); }
+  .repo-badge .badge-icon { font-size: 12px; }
+
+  /* ── Section titles ── */
+  .section {
+    position: relative;
+    z-index: 10;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 64px;
+  }
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── Deploy grid ── */
+  .deploy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .deploy-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    text-decoration: none;
+    transition: all .25s;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .deploy-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .25s;
+    border-radius: inherit;
+  }
+
+  .deploy-card:hover { transform: translateY(-3px); }
+  .deploy-card:hover::before { opacity: 1; }
+
+  .deploy-card.heroku::before  { background: linear-gradient(135deg, rgba(121,82,179,.08), transparent); }
+  .deploy-card.railway::before { background: linear-gradient(135deg, rgba(132,204,22,.08), transparent); }
+  .deploy-card.bothost::before { background: linear-gradient(135deg, rgba(0,229,255,.08), transparent); }
+  .deploy-card.optilink::before{ background: linear-gradient(135deg, rgba(255,107,53,.08), transparent); }
+  .deploy-card.spaceify::before{ background: linear-gradient(135deg, rgba(255,184,0,.08), transparent); }
+  .deploy-card.github::before  { background: linear-gradient(135deg, rgba(255,255,255,.06), transparent); }
+
+  .deploy-card:hover.heroku  { border-color: rgba(121,82,179,.5);  box-shadow: 0 8px 32px rgba(121,82,179,.15); }
+  .deploy-card:hover.railway { border-color: rgba(132,204,22,.5);  box-shadow: 0 8px 32px rgba(132,204,22,.15); }
+  .deploy-card:hover.bothost { border-color: rgba(0,229,255,.4);   box-shadow: 0 8px 32px rgba(0,229,255,.12); }
+  .deploy-card:hover.optilink{ border-color: rgba(255,107,53,.4);  box-shadow: 0 8px 32px rgba(255,107,53,.12); }
+  .deploy-card:hover.spaceify{ border-color: rgba(255,184,0,.4);   box-shadow: 0 8px 32px rgba(255,184,0,.12); }
+  .deploy-card:hover.github  { border-color: rgba(255,255,255,.25);box-shadow: 0 8px 32px rgba(255,255,255,.06); }
+
+  .deploy-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .deploy-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .icon-heroku  { background: rgba(121,82,179,.15); }
+  .icon-railway { background: rgba(132,204,22,.15); }
+  .icon-bothost { background: rgba(0,229,255,.1); }
+  .icon-optilink{ background: rgba(255,107,53,.1); }
+  .icon-spaceify{ background: rgba(255,184,0,.1); }
+  .icon-github  { background: rgba(255,255,255,.06); }
+
+  .deploy-name {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .deploy-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .deploy-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    align-self: flex-start;
+  }
+
+  .tag-free    { background: rgba(16,216,126,.12);  color: var(--success); border: 1px solid rgba(16,216,126,.25); }
+  .tag-paid    { background: rgba(255,184,0,.1);    color: var(--warn);    border: 1px solid rgba(255,184,0,.25); }
+  .tag-freemium{ background: rgba(0,229,255,.08);   color: var(--accent);  border: 1px solid rgba(0,229,255,.2); }
+  .tag-source  { background: rgba(255,255,255,.06); color: var(--muted);   border: 1px solid rgba(255,255,255,.12); }
+
+  .deploy-arrow {
+    font-size: 14px;
+    color: var(--muted);
+    margin-left: auto;
+    transition: transform .2s, color .2s;
+    align-self: flex-end;
+  }
+
+  .deploy-card:hover .deploy-arrow { transform: translateX(4px); color: var(--accent); }
+
+  /* ── Download button (special) ── */
+  .download-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 14px;
+    padding: 20px 24px;
+    text-decoration: none;
+    transition: all .25s;
+    margin-top: 4px;
+  }
+
+  .download-btn:hover {
+    border-color: rgba(0,229,255,.4);
+    background: linear-gradient(135deg, rgba(0,229,255,.06), rgba(124,58,237,.04));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,229,255,.1);
+  }
+
+  .download-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .download-icon {
+    width: 44px; height: 44px;
+    background: rgba(0,229,255,.1);
+    border: 1px solid rgba(0,229,255,.2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .download-title {
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+
+  .download-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .download-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  /* ── Community grid ── */
+  .community-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .comm-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-decoration: none;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .comm-icon {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .comm-card.tg { }
+  .comm-card.tg .comm-icon { background: rgba(38,169,224,.12); }
+  .comm-card.tg:hover { border-color: rgba(38,169,224,.5); background: rgba(38,169,224,.04); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(38,169,224,.1); }
+
+  .comm-card.wa .comm-icon { background: rgba(37,211,102,.12); }
+  .comm-card.wa:hover { border-color: rgba(37,211,102,.5); background: rgba(37,211,102,.04); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(37,211,102,.1); }
+
+  .comm-card.help .comm-icon { background: rgba(255,184,0,.1); }
+  .comm-card.help:hover { border-color: rgba(255,184,0,.5); background: rgba(255,184,0,.04); transform: translateY(-2px); box-shadow: 0 6px 24px rgba(255,184,0,.1); }
+
+  .comm-info { flex: 1; min-width: 0; }
+
+  .comm-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .comm-type { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+  .comm-arrow { font-size: 12px; color: var(--muted); flex-shrink: 0; transition: all .2s; }
+  .comm-card:hover .comm-arrow { transform: translateX(3px); }
+
+  /* ── Steps guide ── */
+  .steps-guide {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .steps-guide-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .guide-step {
+    display: flex;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .guide-step:last-child { border-bottom: none; }
+
+  .guide-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #000;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .guide-content { flex: 1; }
+
+  .guide-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+
+  .guide-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .guide-desc a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .guide-desc a:hover { text-decoration: underline; }
+
+  .code-inline {
+    background: rgba(0,229,255,.08);
+    border: 1px solid rgba(0,229,255,.15);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 10px;
+    color: var(--accent);
+    font-family: var(--mono);
+  }
+
+  /* ── Footer ── */
+  footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 0 24px 40px;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+    margin-top: 20px;
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 520px) {
+    .deploy-grid { grid-template-columns: 1fr; }
+    .community-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 32px; letter-spacing: -1px; }
+    .download-right span { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Nav -->
+<nav>
+  <a href="/" class="nav-brand">
+    <div class="nav-logo">🔷</div>
+    <span class="nav-title">TRASHCORE</span>
+  </a>
+  <a href="index.html" class="nav-back">← Session Generator</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">
+    <span>⚡</span> Trashcore Ultra
+  </div>
+  <h1>
+    <span class="line1">Deploy Your</span>
+    <span class="line2">WhatsApp Bot</span>
+  </h1>
+  <p class="hero-sub">
+    Get Trashcore Ultra running in minutes. Choose your preferred hosting platform, grab the source code, and join the community.
+  </p>
+
+  <!-- Repo stats (static badges) -->
+  <div class="repo-stats">
+    <a href="https://github.com/Tennor-modz/trashcore-ultra" target="_blank" class="repo-badge">
+      <span class="badge-icon">⭐</span> Star on GitHub
+    </a>
+    <a href="https://github.com/Tennor-modz/trashcore-ultra/issues" target="_blank" class="repo-badge">
+      <span class="badge-icon">🐛</span> Issues
+    </a>
+    <a href="https://github.com/Tennor-modz/trashcore-ultra/commits" target="_blank" class="repo-badge">
+      <span class="badge-icon">📦</span> Commits
+    </a>
+    <a href="https://github.com/Tennor-modz/trashcore-ultra/fork" target="_blank" class="repo-badge">
+      <span class="badge-icon">🔀</span> Fork
+    </a>
+  </div>
+</div>
+
+<!-- ── Deploy Platforms ── -->
+<div class="section">
+  <div class="section-title">🚀 Deploy Platforms</div>
+
+  <div class="deploy-grid">
+
+    <a href="https://heroku.com/deploy?template=https://github.com/Tennor-modz/trashcore-ultra" target="_blank" class="deploy-card heroku">
+      <div class="deploy-header">
+        <div class="deploy-icon icon-heroku">🟣</div>
+        <span class="deploy-name">Heroku</span>
+        <span class="deploy-arrow">→</span>
+      </div>
+      <p class="deploy-desc">One-click deploy with the Heroku button. Easy to set up, solid uptime, good for beginners.</p>
+      <span class="deploy-tag tag-paid">Paid</span>
+    </a>
+
+    <a href="https://railway.app/new/template?template=https://github.com/Tennor-modz/trashcore-ultra" target="_blank" class="deploy-card railway">
+      <div class="deploy-header">
+        <div class="deploy-icon icon-railway">🟢</div>
+        <span class="deploy-name">Railway</span>
+        <span class="deploy-arrow">→</span>
+      </div>
+      <p class="deploy-desc">Fast deployments from GitHub. $5/mo credit, great DX, environment variables UI is clean.</p>
+      <span class="deploy-tag tag-freemium">Freemium</span>
+    </a>
+
+    <a href="https://bot-hosting.net" target="_blank" class="deploy-card bothost">
+      <div class="deploy-header">
+        <div class="deploy-icon icon-bothost">🤖</div>
+        <span class="deploy-name">Bot-Hosting.net</span>
+        <span class="deploy-arrow">→</span>
+      </div>
+      <p class="deploy-desc">Dedicated bot hosting with affordable plans. Optimized for Node.js bots and 24/7 uptime.</p>
+      <span class="deploy-tag tag-paid">Paid</span>
+    </a>
+
+    <a href="https://optilink.com" target="_blank" class="deploy-card optilink">
+      <div class="deploy-header">
+        <div class="deploy-icon icon-optilink">🔶</div>
+        <span class="deploy-name">Optilink</span>
+        <span class="deploy-arrow">→</span>
+      </div>
+      <p class="deploy-desc">Budget-friendly VPS and hosting plans. Great for self-hosting with full control over your server.</p>
+      <span class="deploy-tag tag-paid">Paid</span>
+    </a>
+
+    <a href="https://spaceify.eu" target="_blank" class="deploy-card spaceify">
+      <div class="deploy-header">
+        <div class="deploy-icon icon-spaceify">🌐</div>
+        <span class="deploy-name">Spaceify.eu</span>
+        <span class="deploy-arrow">→</span>
+      </div>
+      <p class="deploy-desc">European hosting with solid performance. Good for users who need EU-region servers.</p>
+      <span class="deploy-tag tag-paid">Paid</span>
+    </a>
+
+  </div>
+
+  <!-- Download ZIP -->
+  <a href="https://github.com/Tennor-modz/trashcore-ultra/archive/refs/heads/main.zip" target="_blank" class="download-btn">
+    <div class="download-left">
+      <div class="download-icon">📦</div>
+      <div>
+        <div class="download-title">Download Source Code</div>
+        <div class="download-sub">GitHub ZIP Archive · trashcore-ultra/main</div>
+      </div>
+    </div>
+    <div class="download-right">
+      <span>Download ZIP</span> ↓
+    </div>
+  </a>
+</div>
+
+<!-- ── How to Deploy ── -->
+<div class="section">
+  <div class="section-title">📖 Quick Start Guide</div>
+
+  <div class="steps-guide">
+    <div class="steps-guide-header">⚡ Get running in 5 minutes</div>
+
+    <div class="guide-step">
+      <div class="guide-num">1</div>
+      <div class="guide-content">
+        <div class="guide-title">Get your Session ID</div>
+        <div class="guide-desc">
+          Head to the <a href="index.html">Session Generator</a> and pair your WhatsApp number. Copy the <span class="code-inline">SESSION_ID</span> you receive.
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-step">
+      <div class="guide-num">2</div>
+      <div class="guide-content">
+        <div class="guide-title">Fork or download the repo</div>
+        <div class="guide-desc">
+          Fork <a href="https://github.com/Tennor-modz/trashcore-ultra" target="_blank">Tennor-modz/trashcore-ultra</a> on GitHub, or download the ZIP above. You need a GitHub account for one-click deploys.
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-step">
+      <div class="guide-num">3</div>
+      <div class="guide-content">
+        <div class="guide-title">Pick a platform & deploy</div>
+        <div class="guide-desc">
+          Click any platform button above. Railway and Heroku support one-click deploys straight from your fork. For others, upload the source manually and install dependencies with <span class="code-inline">npm install</span>.
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-step">
+      <div class="guide-num">4</div>
+      <div class="guide-content">
+        <div class="guide-title">Set environment variables</div>
+        <div class="guide-desc">
+          Add your <span class="code-inline">SESSION_ID</span> as an environment variable on your platform's dashboard. Check the repo README for all required env vars.
+        </div>
+      </div>
+    </div>
+
+    <div class="guide-step">
+      <div class="guide-num">5</div>
+      <div class="guide-content">
+        <div class="guide-title">Start the bot 🎉</div>
+        <div class="guide-desc">
+          Deploy and your bot goes live. If you hit any issues, join the <a href="https://t.me/trashcorechat" target="_blank">Telegram group</a> or DM <a href="https://t.me/trashcoredev2" target="_blank">@trashcoredev2</a> for help.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Community ── -->
+<div class="section">
+  <div class="section-title">🌐 Community & Support</div>
+
+  <div class="community-grid">
+
+    <a href="https://t.me/trashcore2" target="_blank" class="comm-card tg">
+      <div class="comm-icon">✈️</div>
+      <div class="comm-info">
+        <div class="comm-name">@trashcore2</div>
+        <div class="comm-type">Telegram Channel</div>
+      </div>
+      <span class="comm-arrow">→</span>
+    </a>
+
+    <a href="https://t.me/trashcoresystem" target="_blank" class="comm-card tg">
+      <div class="comm-icon">✈️</div>
+      <div class="comm-info">
+        <div class="comm-name">@trashcoresystem</div>
+        <div class="comm-type">Telegram Channel</div>
+      </div>
+      <span class="comm-arrow">→</span>
+    </a>
+
+    <a href="https://t.me/trashcorechat" target="_blank" class="comm-card tg">
+      <div class="comm-icon">👥</div>
+      <div class="comm-info">
+        <div class="comm-name">Trashcore Chat</div>
+        <div class="comm-type">Telegram Group</div>
+      </div>
+      <span class="comm-arrow">→</span>
+    </a>
+
+    <a href="https://whatsapp.com/channel/0029VafrbsKG8l5EFBDDCy41" target="_blank" class="comm-card wa">
+      <div class="comm-icon">💬</div>
+      <div class="comm-info">
+        <div class="comm-name">WA Channel 1</div>
+        <div class="comm-type">WhatsApp Channel</div>
+      </div>
+      <span class="comm-arrow">→</span>
+    </a>
+
+    <a href="https://whatsapp.com/channel/0029VbAWe2uIHphDEiz3Vh2r" target="_blank" class="comm-card wa">
+      <div class="comm-icon">💬</div>
+      <div class="comm-info">
+        <div class="comm-name">WA Channel 2</div>
+        <div class="comm-type">WhatsApp Channel</div>
+      </div>
+      <span class="comm-arrow">→</span>
+    </a>
+
+    <a href="https://t.me/trashcoredev2" target="_blank" class="comm-card help">
+      <div class="comm-icon">🛟</div>
+      <div class="comm-info">
+        <div class="comm-name">@trashcoredev2</div>
+        <div class="comm-type">Get Help · Support</div>
+      </div>
+      <span class="comm-arrow">→</span>
+    </a>
+
+  </div>
+</div>
+
+<footer>
+  <a href="https://github.com/Tennor-modz/trashcore-ultra" target="_blank">⭐ Star on GitHub</a>
+  &nbsp;·&nbsp;
+  <a href="index.html">Session Generator</a>
+  &nbsp;·&nbsp;
+  <a href="https://www.drexapp.space" target="_blank">🌐 drexapp.space</a>
+  <br/><br/>
+  Powered by @trashcore/baileys &nbsp;·&nbsp; Built with ❤️ by the Trashcore team
+</footer>
+
+</body>
+</html>
