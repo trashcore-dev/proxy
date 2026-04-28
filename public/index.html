@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Trashcore — Session Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<style>
+  :root {
+    --bg: #080b0f;
+    --panel: #0d1117;
+    --border: #1e2633;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --success: #10d87e;
+    --danger: #ff4466;
+    --warn: #ffb800;
+    --text: #c9d1d9;
+    --muted: #4a5568;
+    --mono: 'Space Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  /* ── Grid background ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Glow orbs ── */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    opacity: .25;
+  }
+  .orb-1 { width: 500px; height: 500px; background: var(--accent2); top: -150px; right: -100px; }
+  .orb-2 { width: 400px; height: 400px; background: var(--accent); bottom: -120px; left: -80px; }
+
+  /* ── Header ── */
+  header {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 640px;
+    padding: 40px 24px 0;
+    text-align: center;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 24px rgba(0,229,255,.3);
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+    background: linear-gradient(90deg, var(--accent), #fff 60%, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .tagline {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── Stats bar ── */
+  .stats-bar {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 24px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  /* ── Main card ── */
+  main {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 580px;
+    margin: 32px auto 60px;
+    padding: 0 24px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 0 0 1px rgba(0,229,255,.04), 0 32px 64px rgba(0,0,0,.5);
+  }
+
+  .card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,255,.02);
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #ffbd2e; }
+  .dot-g { background: #28c840; }
+
+  .card-title {
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-left: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .card-body {
+    padding: 28px 24px;
+  }
+
+  /* ── Steps indicator ── */
+  .steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 32px;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+  }
+
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: all .3s;
+    background: var(--bg);
+  }
+
+  .step-label {
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  .step-line {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    margin-bottom: 22px;
+    transition: background .3s;
+  }
+
+  .step.active .step-num {
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: 0 0 16px rgba(0,229,255,.3);
+  }
+
+  .step.done .step-num {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+
+  .step.done + .step-line { background: var(--accent); }
+
+  /* ── Phone input section ── */
+  #section-phone { display: block; }
+  #section-code  { display: none; }
+  #section-done  { display: none; }
+
+  .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+  }
+
+  .input-wrap {
+    position: relative;
+    margin-bottom: 16px;
+  }
+
+  .input-prefix {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  input[type="tel"] {
+    width: 100%;
+    background: rgba(0,0,0,.3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 14px 14px 44px;
+    font-family: var(--mono);
+    font-size: 16px;
+    color: var(--text);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    letter-spacing: 1px;
+  }
+
+  input[type="tel"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,255,.1);
+  }
+
+  input[type="tel"]::placeholder { color: var(--muted); }
+
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    padding-left: 2px;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    width: 100%;
+    padding: 14px 20px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #0099bb);
+    color: var(--bg);
+    box-shadow: 0 0 24px rgba(0,229,255,.25);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 0 32px rgba(0,229,255,.4);
+  }
+
+  .btn-primary:disabled {
+    opacity: .4;
+    cursor: not-allowed;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    margin-top: 10px;
+  }
+
+  .btn-ghost:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* ── Pairing code display ── */
+  .code-display {
+    background: rgba(0,0,0,.4);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .code-display::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scanline 2s infinite;
+  }
+
+  @keyframes scanline {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .code-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .code-value {
+    font-size: 40px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 6px;
+    text-shadow: 0 0 32px rgba(0,229,255,.5);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .code-copy {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .2s;
+  }
+
+  .code-copy:hover { border-color: var(--accent); color: var(--accent); }
+
+  .instructions-box {
+    background: rgba(255,184,0,.05);
+    border: 1px solid rgba(255,184,0,.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .instructions-box .step-i {
+    color: var(--warn);
+    font-weight: 700;
+  }
+
+  /* ── Status log ── */
+  .status-log {
+    background: rgba(0,0,0,.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Session done ── */
+  .success-icon {
+    text-align: center;
+    font-size: 48px;
+    margin-bottom: 16px;
+    animation: popIn .4s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .session-box {
+    background: rgba(0,0,0,.5);
+    border: 1px solid rgba(16,216,126,.2);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 16px;
+    word-break: break-all;
+    font-size: 11px;
+    color: var(--success);
+    line-height: 1.6;
+    max-height: 160px;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .session-box::-webkit-scrollbar { width: 4px; }
+  .session-box::-webkit-scrollbar-track { background: transparent; }
+  .session-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .btn-copy-session {
+    background: rgba(16,216,126,.1);
+    border: 1px solid rgba(16,216,126,.3);
+    color: var(--success);
+    font-family: var(--mono);
+    padding: 12px 20px;
+    border-radius: 10px;
+    width: 100%;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all .2s;
+    margin-bottom: 10px;
+  }
+
+  .btn-copy-session:hover {
+    background: rgba(16,216,126,.2);
+    box-shadow: 0 0 20px rgba(16,216,126,.2);
+  }
+
+  .copied-toast {
+    text-align: center;
+    font-size: 11px;
+    color: var(--success);
+    opacity: 0;
+    transition: opacity .3s;
+    margin-top: -4px;
+    margin-bottom: 10px;
+  }
+
+  /* ── Error state ── */
+  .error-msg {
+    background: rgba(255,68,102,.08);
+    border: 1px solid rgba(255,68,102,.3);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--danger);
+    display: none;
+    margin-bottom: 14px;
+  }
+
+  /* ── Footer ── */
+  footer {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 0 24px 32px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ── Responsive ── */
+  @media (max-width: 480px) {
+    .code-value { font-size: 28px; letter-spacing: 4px; }
+    .stat-value { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<header>
+  <div class="logo-row">
+    <div class="logo-icon">🔷</div>
+    <h1>TRASHCORE</h1>
+  </div>
+  <p class="tagline">WhatsApp Session Generator</p>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-value" id="stat-users">—</span>
+      <span class="stat-label">Users</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="stat-sessions">—</span>
+      <span class="stat-label">Sessions</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="stat-active">—</span>
+      <span class="stat-label">Active</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="card-header">
+      <div class="dot dot-r"></div>
+      <div class="dot dot-y"></div>
+      <div class="dot dot-g"></div>
+      <span class="card-title">session_generator.sh</span>
+    </div>
+    <div class="card-body">
+
+      <!-- Steps -->
+      <div class="steps">
+        <div class="step active" id="s1">
+          <div class="step-num">1</div>
+          <div class="step-label">Phone</div>
+        </div>
+        <div class="step-line" id="line1"></div>
+        <div class="step" id="s2">
+          <div class="step-num">2</div>
+          <div class="step-label">Pair</div>
+        </div>
+        <div class="step-line" id="line2"></div>
+        <div class="step" id="s3">
+          <div class="step-num">3</div>
+          <div class="step-label">Done</div>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="error-msg" id="error-msg"></div>
+
+      <!-- Section 1: Phone input -->
+      <div id="section-phone">
+        <div class="label">Phone Number</div>
+        <div class="input-wrap">
+          <span class="input-prefix">📱</span>
+          <input type="tel" id="phone-input" placeholder="2547XXXXXXXX" autocomplete="tel"/>
+        </div>
+        <p class="hint">Include country code. No spaces or dashes.</p>
+        <button class="btn btn-primary" id="btn-start" onclick="startPairing()">
+          ⚡ Generate Session ID
+        </button>
+      </div>
+
+      <!-- Section 2: Pairing code -->
+      <div id="section-code">
+        <div class="status-log" id="status-log">
+          <div class="spinner"></div>
+          <span id="status-text">Connecting…</span>
+        </div>
+
+        <div class="code-display" id="code-display" style="display:none">
+          <div class="code-label">WhatsApp Pairing Code</div>
+          <div class="code-value" id="code-value">····-····</div>
+          <button class="code-copy" onclick="copyCode()">📋 Copy code</button>
+        </div>
+
+        <div class="instructions-box" id="code-instructions" style="display:none">
+          <span class="step-i">1.</span> Open WhatsApp on your phone<br/>
+          <span class="step-i">2.</span> Tap <strong>⋮ → Linked Devices → Link a Device</strong><br/>
+          <span class="step-i">3.</span> Tap <strong>Link with phone number</strong><br/>
+          <span class="step-i">4.</span> Enter the code above ↑<br/>
+          <span class="step-i">5.</span> Wait — session ID will appear here automatically ✅
+        </div>
+
+        <button class="btn btn-ghost" onclick="cancelPairing()">✕ Cancel</button>
+      </div>
+
+      <!-- Section 3: Done -->
+      <div id="section-done">
+        <div class="success-icon">🎉</div>
+        <p style="text-align:center; font-size:14px; color:var(--success); margin-bottom:20px; font-weight:700;">
+          SESSION ID GENERATED!
+        </p>
+        <div class="session-box" id="session-value"></div>
+        <button class="btn-copy-session" onclick="copySession()">📋 Copy SESSION_ID</button>
+        <div class="copied-toast" id="copied-toast">✓ Copied to clipboard!</div>
+        <p style="font-size:11px; color:var(--muted); text-align:center; margin-bottom:16px;">
+          Session ID also sent to your WhatsApp 📱
+        </p>
+        <button class="btn btn-primary" onclick="resetAll()">⚡ Generate Another</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<footer>
+  <a href="https://trashbots.zone.id" target="_blank">🌐 trashbots.zone.id</a>
+  &nbsp;·&nbsp; Powered by @trashcore/baileys
+</footer>
+
+<script>
+  // Replace with your Railway backend URL once deployed
+  const BACKEND = 'https://your-app.up.railway.app';
+
+  const socket = io(BACKEND);
+  let currentCode = '';
+  let currentSession = '';
+
+  // ── Load stats ──────────────────────────────────────────────────────────
+  async function loadStats() {
+    try {
+      const res = await fetch(`${BACKEND}/api/stats`);
+      const data = await res.json();
+      document.getElementById('stat-users').textContent = data.totalUsers;
+      document.getElementById('stat-sessions').textContent = data.totalSuccessful;
+      document.getElementById('stat-active').textContent = data.activeSessions;
+    } catch (_) {}
+  }
+
+  loadStats();
+  setInterval(loadStats, 10000);
+
+  // ── Socket events ────────────────────────────────────────────────────────
+  socket.on('status', ({ step, message }) => {
+    document.getElementById('status-text').textContent = message;
+    if (step === 'cancelled') {
+      resetAll();
+    }
+  });
+
+  socket.on('pairing_code', ({ code }) => {
+    currentCode = code;
+    document.getElementById('code-value').textContent = code;
+    document.getElementById('code-display').style.display = 'block';
+    document.getElementById('code-instructions').style.display = 'block';
+    document.getElementById('status-text').textContent = 'Waiting for you to enter the code in WhatsApp…';
+
+    // Update step
+    setStep(2);
+    loadStats();
+  });
+
+  socket.on('session_ready', ({ sessionId }) => {
+    currentSession = sessionId;
+    document.getElementById('session-value').textContent = sessionId;
+    showSection('done');
+    setStep(3);
+    loadStats();
+  });
+
+  socket.on('error', ({ message }) => {
+    showError(message);
+    showSection('phone');
+    setStep(1);
+    document.getElementById('btn-start').disabled = false;
+  });
+
+  // ── Actions ──────────────────────────────────────────────────────────────
+  function startPairing() {
+    const phone = document.getElementById('phone-input').value.trim();
+    if (!phone) return showError('Please enter your phone number.');
+    hideError();
+    document.getElementById('btn-start').disabled = true;
+    showSection('code');
+    setStep(2);
+    socket.emit('start_pairing', { phone });
+  }
+
+  function cancelPairing() {
+    socket.emit('cancel_pairing');
+  }
+
+  function resetAll() {
+    currentCode = '';
+    currentSession = '';
+    document.getElementById('phone-input').value = '';
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('code-display').style.display = 'none';
+    document.getElementById('code-instructions').style.display = 'none';
+    document.getElementById('status-text').textContent = 'Connecting…';
+    hideError();
+    showSection('phone');
+    setStep(1);
+  }
+
+  // ── UI helpers ───────────────────────────────────────────────────────────
+  function showSection(name) {
+    document.getElementById('section-phone').style.display = name === 'phone' ? 'block' : 'none';
+    document.getElementById('section-code').style.display  = name === 'code'  ? 'block' : 'none';
+    document.getElementById('section-done').style.display  = name === 'done'  ? 'block' : 'none';
+  }
+
+  function setStep(n) {
+    [1,2,3].forEach(i => {
+      const s = document.getElementById(`s${i}`);
+      s.classList.remove('active', 'done');
+      if (i < n) s.classList.add('done');
+      else if (i === n) s.classList.add('active');
+    });
+    [1,2].forEach(i => {
+      const l = document.getElementById(`line${i}`);
+      if (i < n) l.style.background = 'var(--accent)';
+      else l.style.background = 'var(--border)';
+    });
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = '⚠ ' + msg;
+    el.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('error-msg').style.display = 'none';
+  }
+
+  function copyCode() {
+    navigator.clipboard.writeText(currentCode).catch(() => {});
+  }
+
+  function copySession() {
+    navigator.clipboard.writeText(currentSession).then(() => {
+      const toast = document.getElementById('copied-toast');
+      toast.style.opacity = '1';
+      setTimeout(() => toast.style.opacity = '0', 2000);
+    }).catch(() => {});
+  }
+
+  // Enter key support
+  document.getElementById('phone-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') startPairing();
+  });
+</script>
+</body>
+</html>
